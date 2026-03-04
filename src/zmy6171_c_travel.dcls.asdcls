@@ -1,0 +1,11 @@
+@EndUserText.label: 'Data Projection Access Control'
+@MappingRole: true
+define role ZMY6171_C_TRAVEL {
+    grant
+        select
+            on
+                ZMY6171_C_TRAVEL
+                    where
+                        inheriting conditions from entity ZMY6171_R_TRAVEL;
+                        
+}
