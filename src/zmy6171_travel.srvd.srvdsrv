@@ -1,4 +1,5 @@
 @EndUserText.label: 'Service Definition'
 define service ZMY6171_TRAVEL {
   expose ZMY6171_C_Travel;
+  expose ZMY6171_C_TRAVELITEM;
 }

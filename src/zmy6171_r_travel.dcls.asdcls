@@ -4,7 +4,7 @@ define role ZMY6171_R_TRAVEL {
     grant 
         select
             on
-                Z6171_R_TRAVEL
+                ZMY6171_R_TRAVEL
                     where
                         (AgencyId) = aspect pfcg_auth(/LRN/AGCY, /LRN/AGCY, ACTVT = '03');
                         

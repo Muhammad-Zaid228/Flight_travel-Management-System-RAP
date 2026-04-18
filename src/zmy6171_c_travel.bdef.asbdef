@@ -8,7 +8,9 @@ use etag
 {
   use create;
   use update;
-  //use delete;
+  use delete;
+
+  use association _TravelItem { create; with draft; }
 
   use action cancel_travel;
 
@@ -18,4 +20,13 @@ use etag
   use action Discard;
   use action Prepare;
   use action Resume;
+}
+
+
+define behavior for ZMY6171_C_TRAVELITEM
+use etag
+{
+use update;
+use delete;
+use association _Travel { with draft; }
 }
