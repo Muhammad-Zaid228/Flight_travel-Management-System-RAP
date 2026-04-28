@@ -1,3 +1,140 @@
+CLASS lsc_zmy6171_r_travel DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zmy6171_r_travel IMPLEMENTATION.
+
+  METHOD save_modified.
+
+    DATA(model) = NEW /lrn/cl_s4d437_tritem(
+           i_table_name = 'ZMY6171_TRITEM' ).
+
+    LOOP AT delete-item ASSIGNING FIELD-SYMBOL(<item_d>).
+
+      model->delete_item( i_uuid = <item_d>-itemuuid ).
+
+    ENDLOOP.
+
+    LOOP AT create-item ASSIGNING FIELD-SYMBOL(<item_c>).
+
+      model->create_item( i_item = CORRESPONDING #( <item_c> MAPPING FROM ENTITY ) ).
+
+    ENDLOOP.
+
+    LOOP AT update-item ASSIGNING FIELD-SYMBOL(<item_u>).
+
+     model->update_item( i_item = CORRESPONDING #( <item_u> MAPPING FROM ENTITY )
+     i_itemx = CORRESPONDING #( <item_u> MAPPING FROM ENTITY USING CONTROL ) ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_item DEFINITION INHERITING FROM cl_abap_behavior_handler.
+
+  PRIVATE SECTION.
+
+    METHODS validateFlightDate FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Item~validateFlightDate.
+    METHODS determineTravelDates FOR DETERMINE ON SAVE
+      IMPORTING keys FOR Item~determineTravelDates.
+
+ENDCLASS.
+
+CLASS lhc_item IMPLEMENTATION.
+
+  METHOD validateFlightDate.
+
+    CONSTANTS c_area TYPE string VALUE `FLIGHTDATE`.
+
+    READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+      ENTITY Item
+        FIELDS ( AgencyId TravelId FlightDate )
+        WITH CORRESPONDING #( keys )
+        RESULT DATA(items).
+
+    LOOP AT items ASSIGNING FIELD-SYMBOL(<item>).
+
+      APPEND VALUE #( %tky = <item>-%tky
+                      %state_area = c_area )
+        TO reported-item.
+
+      IF <item>-FlightDate IS INITIAL.
+        APPEND VALUE #( %tky = <item>-%tky )
+            TO failed-item.
+        APPEND VALUE #( %tky                = <item>-%tky
+                        %msg                = NEW /lrn/cm_s4d437(
+                                    /lrn/cm_s4d437=>field_empty )
+                        %element-FlightDate = if_abap_behv=>mk-on
+                        %state_area         = c_area
+                        %path-travel = CORRESPONDING #( <item> ) )
+            TO reported-item.
+
+
+      ELSEIF <item>-FlightDate < cl_abap_context_info=>get_system_date( ).
+        APPEND VALUE #( %tky = <item>-%tky )
+            TO failed-item.
+        APPEND VALUE #( %tky                = <item>-%tky
+                        %msg                = NEW /lrn/cm_s4d437(
+                               /lrn/cm_s4d437=>flight_date_past )
+                        %element-FlightDate = if_abap_behv=>mk-on
+                        %state_area         = c_area
+                        %path-travel = CORRESPONDING #( <item> ) )
+            TO reported-item.
+
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD determineTravelDates.
+
+  READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+    ENTITY Item
+      FIELDS ( FlightDate )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(items)
+
+      BY \_Travel
+      FIELDS ( BeginDate EndDate )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(travels)
+      LINK DATA(link).
+
+   LOOP AT items ASSIGNING FIELD-SYMBOL(<item>).
+
+     ASSIGN travels[ KEY id %tky =
+     link[ KEY id source-%tky = <item>-%tky ]-target-%tky ]
+     TO FIELD-SYMBOL(<travel>).
+
+     IF <travel>-EndDate < <item>-FlightDate.
+       <travel>-EndDate = <item>-FlightDate.
+     ENDIF.
+
+     IF <item>-FlightDate > cl_abap_context_info=>get_system_date( )
+       AND <item>-FlightDate < <travel>-BeginDate.
+       <travel>-BeginDate = <item>-FlightDate.
+     ENDIF.
+
+  ENDLOOP.
+
+  MODIFY ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+    ENTITY Travel
+      UPDATE
+      FIELDS ( BeginDate EndDate )
+      WITH CORRESPONDING #( travels ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
@@ -182,9 +319,9 @@ CLASS lhc_Travel IMPLEMENTATION.
         TO reported-travel.
       ENDIF.
 
-  ENDLOOP.
+    ENDLOOP.
 
-ENDMETHOD.
+  ENDMETHOD.
 
   METHOD validateEndDate.
 
@@ -222,69 +359,69 @@ ENDMETHOD.
         TO reported-travel.
       ENDIF.
 
-  ENDLOOP.
+    ENDLOOP.
 
-ENDMETHOD.
+  ENDMETHOD.
 
-METHOD validateDateSequence.
+  METHOD validateDateSequence.
 
-  CONSTANTS c_area TYPE string VALUE `SEQUENCE`.
+    CONSTANTS c_area TYPE string VALUE `SEQUENCE`.
 
-  READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
-  ENTITY Travel
-  FIELDS ( BeginDate EndDate )
-  WITH CORRESPONDING #( keys )
-  RESULT DATA(travels).
-  LOOP AT travels ASSIGNING FIELD-SYMBOL(<travel>).
+    READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( BeginDate EndDate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(travels).
+    LOOP AT travels ASSIGNING FIELD-SYMBOL(<travel>).
 
-    APPEND VALUE #( %tky = <travel>-%tky
-                      %state_area = c_area )
+      APPEND VALUE #( %tky = <travel>-%tky
+                        %state_area = c_area )
+          TO reported-travel.
+
+      IF <travel>-EndDate < <travel>-BeginDate.
+        APPEND VALUE #( %tky = <travel>-%tky )
+        TO failed-travel.
+        APPEND VALUE #( %tky      = <travel>-%tky
+                         %msg     = NEW /lrn/cm_s4d437( /lrn/cm_s4d437=>dates_wrong_sequence )
+                         %element = VALUE #(
+                                  BeginDate = if_abap_behv=>mk-on
+                                  EndDate = if_abap_behv=>mk-on )
+                                  %state_area = c_area )
         TO reported-travel.
-
-    IF <travel>-EndDate < <travel>-BeginDate.
-      APPEND VALUE #( %tky = <travel>-%tky )
-      TO failed-travel.
-      APPEND VALUE #( %tky      = <travel>-%tky
-                       %msg     = NEW /lrn/cm_s4d437( /lrn/cm_s4d437=>dates_wrong_sequence )
-                       %element = VALUE #(
-                                BeginDate = if_abap_behv=>mk-on
-                                EndDate = if_abap_behv=>mk-on )
-                                %state_area = c_area )
-      TO reported-travel.
-    ENDIF.
-  ENDLOOP.
-ENDMETHOD.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
 
   METHOD earlynumbering_create.
 
-  DATA(agencyid) = /lrn/cl_s4d437_model=>get_agency_by_user( ).
-  mapped-travel = CORRESPONDING #( entities ).
-  LOOP AT mapped-travel ASSIGNING FIELD-SYMBOL(<mapped_travel>).
-    <mapped_travel>-AgencyID = agencyid.
-    <mapped_travel>-TravelID = /lrn/cl_s4d437_model=>get_next_travelid( ).
-  ENDLOOP.
+    DATA(agencyid) = /lrn/cl_s4d437_model=>get_agency_by_user( ).
+    mapped-travel = CORRESPONDING #( entities ).
+    LOOP AT mapped-travel ASSIGNING FIELD-SYMBOL(<mapped_travel>).
+      <mapped_travel>-AgencyID = agencyid.
+      <mapped_travel>-TravelID = /lrn/cl_s4d437_model=>get_next_travelid( ).
+    ENDLOOP.
 
   ENDMETHOD.
 
   METHOD determineStatus.
 
-  READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
-    ENTITY Travel
-      FIELDS ( Status )
-      WITH CORRESPONDING #( keys )
-      RESULT DATA(travels).
+    READ ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+      ENTITY Travel
+        FIELDS ( Status )
+        WITH CORRESPONDING #( keys )
+        RESULT DATA(travels).
 
-  DELETE travels WHERE Status IS NOT INITIAL.
-  CHECK travels IS NOT INITIAL.
+    DELETE travels WHERE Status IS NOT INITIAL.
+    CHECK travels IS NOT INITIAL.
 
-  MODIFY ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
-    ENTITY Travel
-      UPDATE FIELDS ( Status )
-        WITH VALUE #( FOR key IN travels ( %tky = key-%tky
-                                              Status = 'N' ) )
-        REPORTED DATA(update_reported).
+    MODIFY ENTITIES OF ZMY6171_R_Travel IN LOCAL MODE
+      ENTITY Travel
+        UPDATE FIELDS ( Status )
+          WITH VALUE #( FOR key IN travels ( %tky = key-%tky
+                                                Status = 'N' ) )
+          REPORTED DATA(update_reported).
 
-  reported = CORRESPONDING #( DEEP update_reported ).
+    reported = CORRESPONDING #( DEEP update_reported ).
 
   ENDMETHOD.
 
@@ -298,35 +435,35 @@ ENDMETHOD.
 
     LOOP AT travels ASSIGNING FIELD-SYMBOL(<travel>).
 
-     APPEND CORRESPONDING #( <travel> ) TO result
-       ASSIGNING FIELD-SYMBOL(<result>).
+      APPEND CORRESPONDING #( <travel> ) TO result
+        ASSIGNING FIELD-SYMBOL(<result>).
 
-    IF <travel>-Status = 'C' OR
-       ( <travel>-EndDate IS NOT INITIAL AND
-         <travel>-EndDate < cl_abap_context_info=>get_system_date( ) ).
+      IF <travel>-Status = 'C' OR
+         ( <travel>-EndDate IS NOT INITIAL AND
+           <travel>-EndDate < cl_abap_context_info=>get_system_date( ) ).
 
-       <result>-%update = if_abap_behv=>fc-o-disabled.
-       <result>-%action-cancel_travel = if_abap_behv=>fc-o-disabled.
+        <result>-%update = if_abap_behv=>fc-o-disabled.
+        <result>-%action-cancel_travel = if_abap_behv=>fc-o-disabled.
 
-    " This else is optional bcz constant fc-o has initial(default) value 'enabled'.
-    ELSE.
+        " This else is optional bcz constant fc-o has initial(default) value 'enabled'.
+      ELSE.
         <result>-%update = if_abap_behv=>fc-o-enabled.
         <result>-%action-cancel_travel = if_abap_behv=>fc-o-enabled.
 
-    ENDIF.
+      ENDIF.
 
-    IF <travel>-BeginDate IS NOT INITIAL AND
-       <travel>-BeginDate < cl_abap_context_info=>get_system_date( ).
+      IF <travel>-BeginDate IS NOT INITIAL AND
+         <travel>-BeginDate < cl_abap_context_info=>get_system_date( ).
 
-       <result>-%field-CustomerId = if_abap_behv=>fc-f-read_only.
-       <result>-%field-BeginDate = if_abap_behv=>fc-f-read_only.
+        <result>-%field-CustomerId = if_abap_behv=>fc-f-read_only.
+        <result>-%field-BeginDate = if_abap_behv=>fc-f-read_only.
 
-    " This else is required bcz constant fc-f has not initial(default) value 'mandatory'.
-    ELSE.
+        " This else is required bcz constant fc-f has not initial(default) value 'mandatory'.
+      ELSE.
         <result>-%field-CustomerId = if_abap_behv=>fc-f-mandatory.
         <result>-%field-BeginDate = if_abap_behv=>fc-f-mandatory.
 
-    ENDIF.
+      ENDIF.
 
     ENDLOOP.
 
