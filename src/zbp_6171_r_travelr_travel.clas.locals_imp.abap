@@ -4,6 +4,14 @@ CLASS lsc_zmy6171_r_travel DEFINITION INHERITING FROM cl_abap_behavior_saver.
 
     METHODS save_modified REDEFINITION.
 
+  PRIVATE SECTION.
+METHODS
+map_message
+IMPORTING
+i_msg TYPE symsg
+RETURNING
+VALUE(r_msg) TYPE REF TO if_abap_behv_message.
+
 ENDCLASS.
 
 CLASS lsc_zmy6171_r_travel IMPLEMENTATION.
@@ -15,22 +23,79 @@ CLASS lsc_zmy6171_r_travel IMPLEMENTATION.
 
     LOOP AT delete-item ASSIGNING FIELD-SYMBOL(<item_d>).
 
-      model->delete_item( i_uuid = <item_d>-itemuuid ).
+      DATA(msg_d) = model->delete_item( i_uuid = <item_d>-itemuuid ).
+      IF msg_d IS NOT INITIAL.
+
+        APPEND VALUE #( %tky-itemuuid = <item_d>-itemuuid
+                        %msg = map_message( msg_d ) )
+          TO reported-item.
+
+      ENDIF.
 
     ENDLOOP.
 
     LOOP AT create-item ASSIGNING FIELD-SYMBOL(<item_c>).
 
-      model->create_item( i_item = CORRESPONDING #( <item_c> MAPPING FROM ENTITY ) ).
+      DATA(msg_c) = model->create_item( i_item = CORRESPONDING #( <item_c> MAPPING FROM ENTITY ) ).
+        IF msg_c IS NOT INITIAL.
+
+          APPEND VALUE #( %tky-itemuuid = <item_c>-itemuuid
+                          %msg = map_message( msg_c ) )
+            TO reported-item.
+
+        ENDIF.
 
     ENDLOOP.
 
     LOOP AT update-item ASSIGNING FIELD-SYMBOL(<item_u>).
 
-     model->update_item( i_item = CORRESPONDING #( <item_u> MAPPING FROM ENTITY )
-     i_itemx = CORRESPONDING #( <item_u> MAPPING FROM ENTITY USING CONTROL ) ).
+     DATA(msg_u) = model->update_item(
+        i_item = CORRESPONDING #( <item_u> MAPPING FROM ENTITY )
+        i_itemx = CORRESPONDING #( <item_u> MAPPING FROM ENTITY
+        USING CONTROL ) ).
+        IF msg_u IS NOT INITIAL.
+        APPEND VALUE #( %tky-itemuuid = <item_u>-itemuuid
+        %msg = map_message( msg_u ) )
+        TO reported-item.
+        ENDIF.
 
     ENDLOOP.
+
+    IF create-travel IS NOT INITIAL.
+      DATA event_in TYPE TABLE FOR EVENT ZMY6171_R_Travel~TravelCreated.
+
+      LOOP AT create-travel ASSIGNING FIELD-SYMBOL(<new_travel>).
+        APPEND VALUE #( AgencyId = <new_travel>-AgencyId
+                        TravelId = <new_travel>-TravelId
+                        origin = 'ZMY6171_R_TRAVEL' )
+        TO event_in.
+
+      ENDLOOP.
+
+      RAISE ENTITY EVENT ZMY6171_R_Travel~TravelCreated
+      FROM event_in.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD map_message.
+
+    DATA(severity) = SWITCH #( i_msg-msgty
+    WHEN 'S' THEN if_abap_behv_message=>severity-success
+    WHEN 'I' THEN if_abap_behv_message=>severity-information
+    WHEN 'W' THEN if_abap_behv_message=>severity-warning
+    WHEN 'E' THEN if_abap_behv_message=>severity-error
+    ELSE if_abap_behv_message=>severity-none ).
+
+    r_msg = new_message(
+    id = i_msg-msgid
+    number = i_msg-msgno
+    severity = severity
+    v1 = i_msg-msgv1
+    v2 = i_msg-msgv2
+    v3 = i_msg-msgv3
+    v4 = i_msg-msgv4 ).
 
   ENDMETHOD.
 

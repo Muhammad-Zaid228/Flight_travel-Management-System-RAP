@@ -2,6 +2,9 @@ projection;
 strict ( 2 );
 
 use draft;
+use side effects;
+
+extensible;
 
 define behavior for ZMY6171_C_Travel //alias <alias_name>
 use etag
@@ -25,6 +28,7 @@ use etag
 
 define behavior for ZMY6171_C_TRAVELITEM
 use etag
+extensible
 {
 use update;
 use delete;

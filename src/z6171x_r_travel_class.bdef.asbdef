@@ -1,0 +1,22 @@
+extension implementation in class zbp_6171x_r_travel_class unique;
+
+extend behavior for Travel
+{
+
+  extend draft determine action Prepare
+  {
+  validation Item~ZZvalidateClass;
+  }
+
+}
+
+extend behavior for Item
+with additional save
+{
+
+  validation ZZvalidateClass on save
+  { create;
+  field ZZClassZIT;
+  }
+
+}
