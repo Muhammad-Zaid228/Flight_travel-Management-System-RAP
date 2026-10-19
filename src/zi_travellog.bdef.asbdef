@@ -1,0 +1,20 @@
+managed implementation in class zbp_my6171_i_travellog unique;
+strict ( 2 );
+
+define behavior for ZI_TRAVELLOG alias TravelLog
+persistent table ztravellog
+lock master
+authorization master ( global )
+{
+  create;
+
+  field ( readonly, numbering : managed ) LogUuid;
+
+  mapping for ztravellog
+  {
+    LogUuid  = log_uuid;
+    AgencyId = agency_id;
+    TravelId = travel_id;
+    Origin   = origin;
+  }
+}

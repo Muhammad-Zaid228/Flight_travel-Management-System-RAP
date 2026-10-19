@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZMY6171_MSG</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Messages for Exception Class</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Travel has already been cancelled.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>This field is required.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Flight date cannot be in the past.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Begin date cannot be in the past.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>End date cannot be in the past.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>End date must not be earlier than begin date.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Customer ID is required.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Customer does not exist.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Travel description is required.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>No agency is assigned to the current user.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>Travel number generation failed.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>No travel number was returned.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMY6171_MSG</ARBGB>
+     <MSGNR>013</MSGNR>
+     <TEXT>Travel item was not found.</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

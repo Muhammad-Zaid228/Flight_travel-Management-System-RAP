@@ -18,5 +18,6 @@ define root view entity ZMY6171_R_Travel
         @Semantics.systemDateTime.localInstanceLastChangedAt
         loc_changed_at as LocChangedAt,
         _TravelItem
+        
   }
 

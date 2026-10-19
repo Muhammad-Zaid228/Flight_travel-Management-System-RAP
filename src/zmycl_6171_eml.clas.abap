@@ -6,8 +6,8 @@ CLASS zmycl_6171_eml DEFINITION
   PUBLIC SECTION.
     INTERFACES if_oo_adt_classrun .
 
-    CONSTANTS c_agency_id TYPE /dmo/agency_id VALUE '70041'.
-    CONSTANTS c_travel_id TYPE /dmo/travel_id VALUE '8925'.
+    CONSTANTS c_agency_id TYPE /dmo/agency_id VALUE '070041'.
+    CONSTANTS c_travel_id TYPE /dmo/travel_id VALUE '00000001'.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
