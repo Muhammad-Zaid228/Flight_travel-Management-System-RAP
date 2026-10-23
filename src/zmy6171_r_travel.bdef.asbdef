@@ -1,4 +1,4 @@
-managed implementation in class zbp_6171_r_travelr_travel unique;
+managed implementation in class zmybp_6171_r_travelr_travel unique;
 strict ( 2 );
 
 with draft;
@@ -32,11 +32,11 @@ extensible
   ChangedBy,
   LocChangedAt;
 
-  //field ( readonly : update, mandatory : create )
-  //AgencyId, TravelId;
-
-  field ( readonly  )
+  field ( readonly : update, mandatory : create )
   AgencyId, TravelId;
+
+//  field ( readonly  )
+//  AgencyId, TravelId;
 
   field ( mandatory )
   Description,

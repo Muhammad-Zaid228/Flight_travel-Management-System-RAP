@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZBP_6171X_R_TRAVEL_CLASS</CLSNAME>
+    <CLSNAME>ZBP_MY6171X_R_TRAVEL_CLASS</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>Behavior Implementation for Z6171X_R_TRAVEL_CLASS</DESCRIPT>
     <CATEGORY>06</CATEGORY>

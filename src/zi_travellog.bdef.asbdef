@@ -1,4 +1,4 @@
-managed implementation in class zbp_my6171_i_travellog unique;
+managed implementation in class zmybp_6171_i_travellog unique;
 strict ( 2 );
 
 define behavior for ZI_TRAVELLOG alias TravelLog
